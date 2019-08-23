@@ -1,0 +1,15 @@
+doom:
+  api:
+    host: localhost
+    port: 7777
+  key:
+    forward: 38
+    backward: 40
+    turn-left: 37
+    turn-right: 39
+    shoot: 88
+    use: 32
+    end: 27
+  user:
+    input: "src/main/resources/user_input.txt"
+
