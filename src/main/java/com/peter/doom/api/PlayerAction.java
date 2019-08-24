@@ -1,12 +1,14 @@
 package com.peter.doom.api;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PlayerAction {
 
     private final String type;
 
-    public PlayerAction(@JsonProperty String type) {
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public PlayerAction(@JsonProperty("type") String type) {
         this.type = type;
     }
 

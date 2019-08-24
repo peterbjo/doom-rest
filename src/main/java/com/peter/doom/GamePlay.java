@@ -24,7 +24,7 @@ public class GamePlay implements InputListener, InitializingBean {
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         userInput.addInputListener(this);
         userInput.readUserInput();
     }

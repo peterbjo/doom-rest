@@ -15,12 +15,13 @@ public class RestAction extends AbstractAction {
     private final Integer id;
     private final String url;
     private final PlayerAction playerAction;
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate;
 
-    public RestAction(Integer id, String url, PlayerAction playerAction) {
+    public RestAction(Integer id, String url, PlayerAction playerAction, RestTemplate restTemplate) {
         this.id = id;
         this.url = url;
         this.playerAction = playerAction;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -32,9 +33,10 @@ public class RestAction extends AbstractAction {
     public void perform() {
         logger.info("Performing action : " + playerAction.getType());
         ResponseEntity<String> entity = restTemplate.postForEntity(url, playerAction, String.class);
-        if (!entity.getStatusCode().equals(HttpStatus.CREATED)) {
-            logger.log(Level.WARNING, "Failed to post action: " + playerAction.getType());
+        if (entity.getStatusCode().equals(HttpStatus.CREATED)) {
+            super.perform();
+            return;
         }
-        super.perform();
+        logger.log(Level.WARNING, "Failed to post action: " + playerAction.getType());
     }
 }

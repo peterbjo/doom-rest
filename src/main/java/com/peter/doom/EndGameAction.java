@@ -33,6 +33,5 @@ public class EndGameAction extends AbstractAction {
 
     private void exitGame() {
         endGameListeners.forEach(EndGameListener::onEndGame);
-        System.exit(0);
     }
 }

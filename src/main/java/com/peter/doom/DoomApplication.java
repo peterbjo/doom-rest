@@ -7,11 +7,12 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 import javax.swing.*;
 
 @SpringBootApplication
-public class DoomApplication implements CommandLineRunner {
+public class DoomApplication implements CommandLineRunner, EndGameListener{
 
     @Value("${doom.api.host}")
     private String host;
@@ -59,7 +60,7 @@ public class DoomApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         if (recordInput) {
             JFrame frame = new JFrame("Doom");
             frame.addKeyListener(keyInput);
@@ -78,14 +79,15 @@ public class DoomApplication implements CommandLineRunner {
     @Bean
     Player player() {
         Player player = new Player();
-        String url = "http://" + host + ":" + port + "/api/player/actions";
-        player.addAction(new RestAction(forward, url, PlayerAction.valueOf("forward")));
-        player.addAction(new RestAction(backward, url, PlayerAction.valueOf("backward")));
-        player.addAction(new RestAction(turnLeft, url, PlayerAction.valueOf("turn-left")));
-        player.addAction(new RestAction(turnRight, url, PlayerAction.valueOf("turn-right")));
-        player.addAction(new RestAction(shoot, url, PlayerAction.valueOf("shoot")));
-        player.addAction(new RestAction(use, url, PlayerAction.valueOf("use")));
         EndGameAction endGameAction = new EndGameAction(end);
+        endGameAction.addEndGameListener(this);
+        String url = "http://" + host + ":" + port + "/api/player/actions";
+        player.addAction(new RestAction(forward, url, PlayerAction.valueOf("forward"), restTemplate()));
+        player.addAction(new RestAction(backward, url, PlayerAction.valueOf("backward"), restTemplate()));
+        player.addAction(new RestAction(turnLeft, url, PlayerAction.valueOf("turn-left"), restTemplate()));
+        player.addAction(new RestAction(turnRight, url, PlayerAction.valueOf("turn-right"), restTemplate()));
+        player.addAction(new RestAction(shoot, url, PlayerAction.valueOf("shoot"), restTemplate()));
+        player.addAction(new RestAction(use, url, PlayerAction.valueOf("use"), restTemplate()));
         player.addAction(endGameAction);
 
         if (recordInput) {
@@ -94,5 +96,15 @@ public class DoomApplication implements CommandLineRunner {
             endGameAction.addEndGameListener(actionRecorder);
         }
         return player;
+    }
+
+    @Bean
+    RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Override
+    public void onEndGame() {
+        System.exit(0);
     }
 }
